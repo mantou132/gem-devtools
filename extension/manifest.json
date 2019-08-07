@@ -1,0 +1,9 @@
+{
+  "name": "Gem DevTools",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "Gem DevTools Extension to inspect and debug Gem elements",
+  "devtools_page": "devtools.html",
+  "permissions": ["tabs"],
+  "content_security_policy": "script-src 'self' https://dev.jspm.io; object-src 'self'"
+}

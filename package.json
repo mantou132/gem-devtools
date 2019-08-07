@@ -1,0 +1,21 @@
+{
+  "name": "gem-devtools",
+  "version": "0.0.1",
+  "description": "gem developer tools",
+  "main": "",
+  "dependencies": {},
+  "devDependencies": {
+    "web-ext": "^3.1.1"
+  },
+  "keywords": [
+    "gem",
+    "devtools"
+  ],
+  "scripts": {
+    "start": "web-ext --config web-ext-config.js run",
+    "build:xpi": "web-ext --config web-ext-config.js sign",
+    "build:zip": "web-ext --config web-ext-config.js build"
+  },
+  "author": "mantou132",
+  "license": "ISC"
+}
