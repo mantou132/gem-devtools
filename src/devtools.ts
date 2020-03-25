@@ -1,10 +1,7 @@
-import "https://dev.jspm.io/webextension-polyfill";
+import { browser } from 'webextension-polyfill-ts';
 
 const getSelectedGem = function() {
-  /**
-   * @type HTMLElement
-   */
-  const data = {'<spec>': {}, __proto__: null};
+  const data: { [index: string]: any } = { '<spec>': {}, __proto__: null };
   // 看不到 getter
   for (const key in $0) {
     if ($0.constructor.name in window) {
@@ -22,19 +19,13 @@ const getSelectedGem = function() {
     }
   }
 
-  window.$g = data;
   return data;
 };
 
-chrome.devtools.panels.elements.createSidebarPane("Gem", function(sidebar) {
+browser.devtools.panels.elements.createSidebarPane('Gem').then(function(sidebar) {
   function updateElementProperties() {
-    sidebar.setExpression(
-      "(" + getSelectedGem.toString() + ")()",
-      "Properties"
-    );
+    sidebar.setExpression(`(${getSelectedGem.toString()})()`, 'Properties');
   }
   updateElementProperties();
-  chrome.devtools.panels.elements.onSelectionChanged.addListener(
-    updateElementProperties
-  );
+  (browser.devtools.panels.elements as any).onSelectionChanged.addListener(updateElementProperties);
 });
