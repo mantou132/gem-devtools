@@ -8,8 +8,9 @@
     "module": "esnext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
     "target": "es6",
-    "lib": ["es2018", "dom"],
+    "lib": ["es2018", "dom", "DOM.Iterable"],
     "typeRoots": ["node_mobules/@types", "src/types"],
   },
   "include": ["src"]

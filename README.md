@@ -1,23 +1,12 @@
-## Webextension Boilerplate
+## Gem Devtools
 
-build:
+Devtools for [Gem](https://github.com/mantou132/gem-devtools/), able to view the characteristics of GemElement.
 
-- webpack
-- ts-loader
-- typescript
-- eslint
-- prettier
+![firefox](./screenshot/firefox.jpg)
 
 ## development
 
 ```bash
-# step 1
-npm run watch
-# open a new terminal
-# step 2
 npm run start
+npm run browser
 ```
-
-## publish
-
-Publishing Firefox extension requires apikey, save to apikey.js
