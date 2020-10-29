@@ -1,10 +1,12 @@
 {
   "name": "Gem DevTools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "manifest_version": 2,
   "description": "Gem DevTools Extension to inspect and debug Gem elements",
   "devtools_page": "devtools.html",
-  "permissions": ["tabs"],
+  "permissions": [
+    "tabs"
+  ],
   "icons": {
     "512": "logo.png"
   }
