@@ -6,7 +6,7 @@ import { Item } from '../store';
 export class Section extends GemElement {
   @attribute name: string;
   @property data: Item[] = [];
-  @property path: string[];
+  @property path: string[] | undefined;
   @emitter valueclick: Emitter<string[]>;
 
   renderInspect = (path?: string[]) => {

@@ -32,7 +32,11 @@ export class Panel extends GemElement {
       <devtools-section name="Observed Propertys" .data=${panelStore.observedPropertys}></devtools-section>
       <devtools-section name="Observed Stores" .data=${panelStore.observedStores}></devtools-section>
       <devtools-section name="Lifecycle Method" .data=${panelStore.lifecycleMethod}></devtools-section>
-      <devtools-section name="State" .path=${['state']} .data=${panelStore.state}></devtools-section>
+      <devtools-section
+        name="State"
+        .path=${panelStore.state.length ? ['state'] : undefined}
+        .data=${panelStore.state}
+      ></devtools-section>
       <devtools-section name="Method" .data=${panelStore.method}></devtools-section>
       <devtools-section name="Propertys" .data=${panelStore.propertys}></devtools-section>
       <devtools-section name="Attributes" .data=${panelStore.attributes}></devtools-section>
