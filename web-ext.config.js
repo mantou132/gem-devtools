@@ -4,7 +4,7 @@ module.exports = {
   verbose: true,
   run: {
     firefox: 'nightly',
-    startUrl: ['about:debugging', 'https://gem-docs.netlify.com/'],
+    startUrl: ['about:debugging', 'https://gem-examples.netlify.app/'],
   },
   build: {
     overwriteDest: true,

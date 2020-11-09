@@ -10,9 +10,10 @@
     "browser": "web-ext --config web-ext.config.js run"
   },
   "author": "mantou132",
+  "repository": "https://github.com/mantou132/gem-devtools",
   "license": "ISC",
   "dependencies": {
-    "@mantou/gem": "^0.4.9",
+    "@mantou/gem": "^0.4.11",
     "webextension-polyfill-ts": "^0.20.0"
   },
   "devDependencies": {
@@ -20,9 +21,9 @@
     "@typescript-eslint/parser": "^2.34.0",
     "babel-eslint": "^10.1.0",
     "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^6.2.1",
+    "copy-webpack-plugin": "^6.3.0",
     "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.14.0",
+    "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.1.4",
     "file-loader": "^4.3.0",
@@ -45,9 +46,6 @@
     }
   },
   "lint-staged": {
-    "*.ts": [
-      "npm run lint",
-      "git add"
-    ]
+    "*.ts": "npm run lint"
   }
 }

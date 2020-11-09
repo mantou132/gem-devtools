@@ -1,28 +1,53 @@
 import { attribute, customElement, Emitter, emitter, GemElement, html, property } from '@mantou/gem';
 
-import { Item } from '../store';
+import { Item, Path, BuildIn } from '../store';
 
+const maybeBuildInPrefix = '[[Gem?]] ';
+const buildInPrefix = '[[Gem]] ';
+
+/**
+ * @attr name
+ * @attr tip
+ */
 @customElement('devtools-section')
 export class Section extends GemElement {
   @attribute name: string;
+  @attribute tip: string;
   @property data: Item[] = [];
-  @property path: string[] | undefined;
-  @emitter valueclick: Emitter<string[]>;
+  @property path: Path | undefined;
+  @emitter valueclick: Emitter<Path>;
 
-  renderInspect = (path?: string[]) => {
+  renderTip = () => {
+    if (!this.tip) return '';
+    return html`
+      <span class="tip" title=${this.tip} @click=${(e: Event) => e.preventDefault()}>?</span>
+    `;
+  };
+
+  renderInspect = (path?: Path) => {
     if (!path) return '';
     return html`
       <span
         class="inspect"
+        title="Inspect"
         @click=${(e: Event) => {
           this.valueclick(path, { composed: true, bubbles: true });
           e.preventDefault();
         }}
-        title="Inspect"
       >
         ◉
       </span>
     `;
+  };
+
+  renderBuildInMark = (buildIn?: BuildIn) => {
+    if (!buildIn) return '';
+    switch (buildIn) {
+      case 1:
+        return buildInPrefix;
+      default:
+        return maybeBuildInPrefix;
+    }
   };
 
   renderItem = (data: Item[]) => {
@@ -32,9 +57,9 @@ export class Section extends GemElement {
           e =>
             html`
               <li>
-                <span class="name">${e.name}</span>
+                <span class="name">${this.renderBuildInMark(e.buildIn)}${e.name}</span>
                 <span class="sp">:</span>
-                <span class="value ${e.type}">${e.value}</span>
+                <span class="value ${e.type}" title=${e.value}>${e.value}</span>
                 ${this.renderInspect(e.path)}
               </li>
             `,
@@ -65,12 +90,30 @@ export class Section extends GemElement {
           display: flex;
           background: #eee;
           border-bottom: 1px solid #fff;
-          border-top: 1px solid #fff;
           padding-right: 1em;
           user-select: none;
         }
         .summary {
           flex-grow: 1;
+          display: flex;
+          align-items: center;
+        }
+        .tip {
+          opacity: 0.3;
+          margin-left: 1em;
+          box-sizing: border-box;
+          padding: 0.2em;
+          background-clip: content-box;
+          background: currentColor;
+          -webkit-text-fill-color: #fff;
+          border-radius: 10em;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 2em;
+          width: 2em;
+          font-size: 0.5em;
+          font-weight: bolder;
         }
         summary:hover {
           background: #ddd;
@@ -106,6 +149,7 @@ export class Section extends GemElement {
           padding: 0 1em;
         }
         .name {
+          white-space: nowrap;
           color: #75bfff;
         }
         .sp {
@@ -139,9 +183,12 @@ export class Section extends GemElement {
         .function {
           color: #75bfff;
         }
+        .element {
+          color: #ba77b4;
+        }
       </style>
       <details open>
-        <summary><span class="summary">${name}</span>${this.renderInspect(this.path)}</summary>
+        <summary><span class="summary">${name}${this.renderTip()}</span>${this.renderInspect(this.path)}</summary>
         <div>
           ${data.length
             ? this.renderItem(data)
