@@ -9,6 +9,7 @@ module.exports = {
   entry: {
     test: './src/test',
     devtools: './src/devtools',
+    content: './src/content',
     sidebarpanel: './src/sidebarpanel',
   },
   module: {

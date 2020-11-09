@@ -4,6 +4,9 @@ import { GemElement, html, render, SheetToken } from '@mantou/gem';
 import './elements/panel';
 import { changeStore, PanelStore, Path } from './store';
 
+declare let $0: any;
+declare function inspect(arg: any): void;
+
 // 不要使用作用域外的变量
 const getSelectedGem = function(data: PanelStore): PanelStore | null {
   // 依赖 `constructor`，如果 `constructor` 被破坏，则扩展不能工作
