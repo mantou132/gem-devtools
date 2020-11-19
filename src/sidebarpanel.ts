@@ -8,17 +8,17 @@ declare let $0: any;
 declare function inspect(arg: any): void;
 
 // 不要使用作用域外的变量
-const getSelectedGem = function(data: PanelStore): PanelStore | null {
+const getSelectedGem = function (data: PanelStore): PanelStore | null {
   // 依赖 `constructor`，如果 `constructor` 被破坏，则扩展不能工作
   const tagClass = $0.constructor as typeof GemElement;
   if (tagClass.name in window || !($0 instanceof HTMLElement)) return null;
 
-  const funcToString = (func: Function) => {
+  const funcToString = (func: () => void) => {
     // bound 方法
     if (func.toString() === 'function () { [native code] }') {
-      return `function ${func.name} {}`;
+      return `function ${func.name} {...}`;
     } else {
-      return func.toString().replace(/{.*}/, '{}');
+      return func.toString().replace(/{.*}/, '{...}');
     }
   };
 
@@ -47,17 +47,16 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
         } else if (window.CSSStyleSheet && arg instanceof CSSStyleSheet) {
           return arg.cssRules
             ? Array.from(arg.cssRules)
-                .map(rule => rule.cssText)
+                .map((rule) => rule.cssText)
                 .join('\n')
             : '';
         } else if (Array.isArray(arg)) {
           return `[${arg.map(objToString)}]`;
         } else {
-          let result = '{';
-          Object.keys(arg).forEach((key, index) => {
-            result += `${index ? ',' : ''} ${key}: ${objToString(arg[key])}`;
-          });
-          return result + '}';
+          const body = Object.keys(arg).reduce((p, key, index) => {
+            return (p += `${index ? ',' : ''} ${key}: ${objToString(arg[key])}`);
+          }, '');
+          return `{${body}}`;
         }
       }
       default:
@@ -66,7 +65,7 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
   };
 
   const getProps = (obj: any, set = new Set<string>()) => {
-    Object.getOwnPropertyNames(obj).forEach(key => {
+    Object.getOwnPropertyNames(obj).forEach((key) => {
       if (!key.startsWith('__') && key !== 'constructor') set.add(key);
     });
     const proto = Object.getPrototypeOf(obj);
@@ -75,14 +74,14 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
   };
 
   const kebabToCamelCase = (str: string) => str.replace(/-(.)/g, (_substr, $1: string) => $1.toUpperCase());
-  const attrs: Set<string> = $0.attributes ? new Set([...$0.attributes].map(attr => attr.nodeName)) : new Set();
+  const attrs: Set<string> = $0.attributes ? new Set([...$0.attributes].map((attr) => attr.nodeName)) : new Set();
   const lifecycleMethod = new Set(['willMount', 'render', 'mounted', 'shouldUpdate', 'updated', 'unmounted']);
   const buildInLifecycleMethod = new Set(['connectedCallback', 'attributeChangedCallback', 'disconnectedCallback']);
   const buildInMethod = new Set(['update', 'setState', 'effect']);
   const buildInProperty = new Set(['internals']);
   const buildInAttribute = new Set(['ref']);
   const menber = getProps($0);
-  tagClass.observedAttributes?.forEach(attr => {
+  tagClass.observedAttributes?.forEach((attr) => {
     const prop = kebabToCamelCase(attr);
     const value = $0[prop];
     menber.delete(prop);
@@ -93,7 +92,7 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
       type: typeof value,
     });
   });
-  attrs.forEach(attr => {
+  attrs.forEach((attr) => {
     const value = $0.getAttribute(attr);
     data.attributes.push({
       name: attr,
@@ -102,7 +101,7 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
       buildIn: buildInAttribute.has(attr) ? 1 : 0,
     });
   });
-  tagClass.observedPropertys?.forEach(prop => {
+  tagClass.observedPropertys?.forEach((prop) => {
     menber.delete(prop);
     const value = $0[prop];
     const type = typeof value;
@@ -113,10 +112,11 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
       path: type === 'object' && value ? [prop] : undefined,
     });
   });
-  tagClass.defineEvents?.forEach(prop => {
+  tagClass.defineEvents?.forEach((event) => {
+    const prop = kebabToCamelCase(event);
     menber.delete(prop);
     data.emitters.push({
-      name: prop,
+      name: event,
       value: objectToString($0[prop]),
       type: 'function',
       path: [prop],
@@ -138,19 +138,37 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
       path: ['constructor', 'observedStores', String(index)],
     });
   });
-  tagClass.defineSlots?.forEach(slot => {
-    menber.delete(slot);
-    const selector = `[slot=${$0[slot]}]`;
+  tagClass.defineSlots?.forEach((slot) => {
+    let name = '';
+    let prop = '';
+    if ($0.constructor[slot]) {
+      name = $0.constructor[slot];
+      prop = kebabToCamelCase(name);
+    } else {
+      name = $0[slot];
+      prop = kebabToCamelCase(name);
+      menber.delete(prop);
+    }
+    const selector = `[slot=${prop}]`;
     data.slots.push({
       name: slot,
       value: objectToString($0.querySelector(selector)),
       type: 'element',
-      path: ['querySelector', `[slot=${$0[slot]}]`],
+      path: ['querySelector', selector],
     });
   });
-  tagClass.defineParts?.forEach(part => {
-    menber.delete(part);
-    const selector = `[part=${$0[part]}]`;
+  tagClass.defineParts?.forEach((part) => {
+    let name = '';
+    let prop = '';
+    if ($0.constructor[part]) {
+      name = $0.constructor[part];
+      prop = kebabToCamelCase(name);
+    } else {
+      name = $0[part];
+      prop = kebabToCamelCase(name);
+      menber.delete(prop);
+    }
+    const selector = `[part=${prop}]`;
     data.parts.push({
       name: part,
       value: objectToString(($0.shadowRoot || $0).querySelector(selector)),
@@ -158,30 +176,32 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
       path: [['shadowRoot', ''], 'querySelector', selector],
     });
   });
-  tagClass.defineRefs?.forEach(ref => {
-    menber.delete(ref);
+  tagClass.defineRefs?.forEach((ref) => {
+    const prop = kebabToCamelCase(ref);
+    menber.delete(prop);
     data.refs.push({
       name: ref,
-      value: objectToString($0[ref].element),
+      value: objectToString($0[prop].element),
       type: 'element',
-      path: [['shadowRoot', ''], 'querySelector', `[ref=${$0[ref].ref}]`],
+      path: [['shadowRoot', ''], 'querySelector', `[ref=${$0[prop].ref}]`],
     });
   });
-  tagClass.defineCSSStates?.forEach(state => {
-    menber.delete(state);
+  tagClass.defineCSSStates?.forEach((state) => {
+    const prop = kebabToCamelCase(state);
+    menber.delete(prop);
     data.cssStates.push({
-      name: state,
-      value: $0[state],
+      name: prop,
+      value: $0[prop],
       type: 'boolean',
     });
   });
-  menber.forEach(key => {
+  menber.forEach((key) => {
     menber.delete(key);
     // GemElement 不允许覆盖内置生命周期，所以不考虑
     if (buildInLifecycleMethod.has(key)) return;
     if (key === 'state') {
       $0.state &&
-        Object.keys($0.state).forEach(k => {
+        Object.keys($0.state).forEach((k) => {
           const value = $0.state[k];
           data.state.push({
             name: k,
@@ -218,7 +238,6 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
       buildIn: buildInProperty.has(key) ? 2 : 0,
     });
   });
-
   return data;
 };
 
@@ -227,7 +246,7 @@ const getSelectedGem = function(data: PanelStore): PanelStore | null {
  * @param func A function that can be converted into a string and does not rely on external variables
  * @param args Array serializable using JSON
  */
-async function execution(func: Function, args: any[]) {
+async function execution(func: (...rest: any) => any, args: any[]) {
   const [data, error] = await browser.devtools.inspectedWindow.eval(
     `(${func.toString()}).apply(null, ${JSON.stringify(args)})`,
   );

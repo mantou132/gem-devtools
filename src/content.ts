@@ -1,8 +1,4 @@
-type DevToolsHook = any;
-
-interface Window {
-  __GEM_DEVTOOLS__HOOK__: DevToolsHook;
-}
+import type { DevToolsHook } from '@mantou/gem';
 
 // 序列化后在 page 中执行
 function initDevToolsHook() {

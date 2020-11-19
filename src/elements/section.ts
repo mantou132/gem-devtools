@@ -19,9 +19,7 @@ export class Section extends GemElement {
 
   renderTip = () => {
     if (!this.tip) return '';
-    return html`
-      <span class="tip" title=${this.tip} @click=${(e: Event) => e.preventDefault()}>?</span>
-    `;
+    return html`<span class="tip" title=${this.tip} @click=${(e: Event) => e.preventDefault()}>?</span>`;
   };
 
   renderInspect = (path?: Path) => {
@@ -54,7 +52,7 @@ export class Section extends GemElement {
     return html`
       <ul>
         ${data.map(
-          e =>
+          (e) =>
             html`
               <li>
                 <span class="name">${this.renderBuildInMark(e.buildIn)}${e.name}</span>
@@ -189,13 +187,7 @@ export class Section extends GemElement {
       </style>
       <details open>
         <summary><span class="summary">${name}${this.renderTip()}</span>${this.renderInspect(this.path)}</summary>
-        <div>
-          ${data.length
-            ? this.renderItem(data)
-            : html`
-                <div class="nodata">no data</div>
-              `}
-        </div>
+        <div>${data.length ? this.renderItem(data) : html`<div class="nodata">no data</div>`}</div>
       </details>
     `;
   }

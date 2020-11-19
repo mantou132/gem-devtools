@@ -17,7 +17,7 @@ render(
 
 changeStore({
   observedAttributes: [
-    { name: 'song-id', value: '132', type: 'number' },
+    { name: 'song-id', value: String(Date.now()), type: 'number' },
     { name: 'id', value: '', type: 'string' },
   ],
   observedPropertys: [
