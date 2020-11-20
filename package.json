@@ -6,6 +6,7 @@
     "lint": "tsc --noEmit && eslint --ext .ts --fix src/",
     "build": "webpack --mode=development",
     "build:zip": "npm run build && web-ext --config web-ext.config.js build",
+    "release": "npx mantou132/release#web-ext -w public patch",
     "start": "webpack-dev-server",
     "browser": "web-ext --config web-ext.config.js run"
   },
