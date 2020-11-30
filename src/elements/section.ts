@@ -71,9 +71,11 @@ export class Section extends GemElement {
     return html`
       <style>
         :host {
+          display: block;
           line-height: 1.5;
           cursor: default;
           font-family: sans-serif;
+          background: #fff;
         }
         .inspect {
           cursor: pointer;
