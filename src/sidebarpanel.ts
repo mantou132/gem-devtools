@@ -139,17 +139,11 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
     });
   });
   tagClass.defineSlots?.forEach((slot) => {
-    let name = '';
-    let prop = '';
-    if ($0.constructor[slot]) {
-      name = $0.constructor[slot];
-      prop = kebabToCamelCase(name);
-    } else {
-      name = $0[slot];
-      prop = kebabToCamelCase(name);
+    const prop = kebabToCamelCase(slot);
+    if (!$0.constructor[prop]) {
       menber.delete(prop);
     }
-    const selector = `[slot=${prop}]`;
+    const selector = `[slot=${slot}]`;
     data.slots.push({
       name: slot,
       value: objectToString($0.querySelector(selector)),
@@ -158,17 +152,11 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
     });
   });
   tagClass.defineParts?.forEach((part) => {
-    let name = '';
-    let prop = '';
-    if ($0.constructor[part]) {
-      name = $0.constructor[part];
-      prop = kebabToCamelCase(name);
-    } else {
-      name = $0[part];
-      prop = kebabToCamelCase(name);
+    const prop = kebabToCamelCase(part);
+    if (!$0.constructor[prop]) {
       menber.delete(prop);
     }
-    const selector = `[part=${prop}]`;
+    const selector = `[part=${part}]`;
     data.parts.push({
       name: part,
       value: objectToString(($0.shadowRoot || $0).querySelector(selector)),
