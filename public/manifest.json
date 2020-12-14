@@ -1,6 +1,6 @@
 {
   "name": "Gem DevTools",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "manifest_version": 2,
   "description": "Gem DevTools Extension to inspect and debug Gem elements",
   "devtools_page": "devtools.html",
