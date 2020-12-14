@@ -31,6 +31,7 @@ export class PanelStore {
   method: Item[] = [];
   propertys: Item[] = [];
   attributes: Item[] = [];
+  staticMember: Item[] = [];
 }
 
 export const panelStore = createStore({ ...new PanelStore(), isGemElement: false });

@@ -50,6 +50,7 @@ export class Panel extends GemElement {
       <devtools-section name="Method" .data=${panelStore.method}></devtools-section>
       <devtools-section name="Unobserved Attributes" .data=${panelStore.attributes}></devtools-section>
       <devtools-section name="Unobserved Propertys" .data=${panelStore.propertys}></devtools-section>
+      <devtools-section name="Class Static Member" .data=${panelStore.staticMember}></devtools-section>
     `;
   }
 }

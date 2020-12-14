@@ -14,7 +14,7 @@
   "repository": "https://github.com/mantou132/gem-devtools",
   "license": "ISC",
   "dependencies": {
-    "@mantou/gem": "^0.6.1",
+    "@mantou/gem": "^0.6.9",
     "webextension-polyfill-ts": "^0.22.0"
   },
   "devDependencies": {

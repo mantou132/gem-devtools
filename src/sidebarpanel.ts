@@ -1,5 +1,5 @@
 import { browser } from 'webextension-polyfill-ts';
-import { GemElement, html, render, SheetToken } from '@mantou/gem';
+import { customElement, GemElement, html, render, SheetToken } from '@mantou/gem';
 
 import './elements/panel';
 import { changeStore, PanelStore, Path } from './store';
@@ -9,10 +9,19 @@ declare let $0: any;
 declare function inspect(arg: any): void;
 
 // 不要使用作用域外的变量
-const getSelectedGem = function (data: PanelStore): PanelStore | null {
+const getSelectedGem = function (data: PanelStore, gemElementSymbols: string[]): PanelStore | null {
   // 依赖 `constructor`，如果 `constructor` 被破坏，则扩展不能工作
+  // 没有严格检查是否是 GemElement
   const tagClass = $0.constructor as typeof GemElement;
-  if (tagClass.name in window || !($0 instanceof HTMLElement)) return null;
+  if (!($0 instanceof HTMLElement)) return null;
+
+  const elementSymbols = new Set(Object.getOwnPropertySymbols($0).map(String));
+  if (gemElementSymbols.some((symbol) => !elementSymbols.has(symbol))) return null;
+
+  const inspectable = (value: any) => {
+    const type = typeof value;
+    return (type === 'object' && value) || type === 'function';
+  };
 
   const funcToString = (func: () => void) => {
     // bound 方法
@@ -44,7 +53,11 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
         return funcToString(arg);
       case 'object': {
         if (arg instanceof HTMLElement) {
-          return (arg.cloneNode() as HTMLElement).outerHTML.replace('><', '>...<');
+          try {
+            return (arg.cloneNode() as HTMLElement).outerHTML.replace('><', '>...<');
+          } catch {
+            // element prototype
+          }
         } else if (window.CSSStyleSheet && arg instanceof CSSStyleSheet) {
           return arg.cssRules
             ? Array.from(arg.cssRules)
@@ -53,12 +66,12 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
             : '';
         } else if (Array.isArray(arg)) {
           return `[${arg.map(objToString)}]`;
-        } else {
-          const body = Object.keys(arg).reduce((p, key, index) => {
-            return (p += `${index ? ',' : ''} ${key}: ${objToString(arg[key])}`);
-          }, '');
-          return `{${body}}`;
         }
+
+        const body = Object.keys(arg).reduce((p, key, index) => {
+          return (p += `${index ? ',' : ''} ${key}: ${objToString(arg[key])}`);
+        }, '');
+        return `{${body}}`;
       }
       default:
         return String(arg);
@@ -81,11 +94,11 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
   const buildInMethod = new Set(['update', 'setState', 'effect']);
   const buildInProperty = new Set(['internals']);
   const buildInAttribute = new Set(['ref']);
-  const menber = getProps($0);
+  const member = getProps($0);
   tagClass.observedAttributes?.forEach((attr) => {
     const prop = kebabToCamelCase(attr);
     const value = $0[prop];
-    menber.delete(prop);
+    member.delete(prop);
     attrs.delete(attr);
     data.observedAttributes.push({
       name: attr,
@@ -103,19 +116,19 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
     });
   });
   tagClass.observedPropertys?.forEach((prop) => {
-    menber.delete(prop);
+    member.delete(prop);
     const value = $0[prop];
     const type = typeof value;
     data.observedPropertys.push({
       name: prop,
       value: objectToString(value),
       type,
-      path: type === 'object' && value ? [prop] : undefined,
+      path: inspectable(value) ? [prop] : undefined,
     });
   });
   tagClass.defineEvents?.forEach((event) => {
     const prop = kebabToCamelCase(event);
-    menber.delete(prop);
+    member.delete(prop);
     data.emitters.push({
       name: event,
       value: objectToString($0[prop]),
@@ -142,7 +155,7 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
   tagClass.defineSlots?.forEach((slot) => {
     const prop = kebabToCamelCase(slot);
     if (!$0.constructor[prop]) {
-      menber.delete(prop);
+      member.delete(prop);
     }
     const selector = `[slot=${slot}]`;
     let element = $0.querySelector(selector);
@@ -160,7 +173,7 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
   tagClass.defineParts?.forEach((part) => {
     const prop = kebabToCamelCase(part);
     if (!$0.constructor[prop]) {
-      menber.delete(prop);
+      member.delete(prop);
     }
     const selector = `[part=${part}],[exportparts*=${part}]`;
     data.parts.push({
@@ -172,7 +185,7 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
   });
   tagClass.defineRefs?.forEach((ref) => {
     const prop = kebabToCamelCase(ref);
-    menber.delete(prop);
+    member.delete(prop);
     data.refs.push({
       name: ref,
       value: objectToString($0[prop].element),
@@ -182,15 +195,15 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
   });
   tagClass.defineCSSStates?.forEach((state) => {
     const prop = kebabToCamelCase(state);
-    menber.delete(prop);
+    member.delete(prop);
     data.cssStates.push({
       name: prop,
       value: $0[prop],
       type: 'boolean',
     });
   });
-  menber.forEach((key) => {
-    menber.delete(key);
+  member.forEach((key) => {
+    member.delete(key);
     // GemElement 不允许覆盖内置生命周期，所以不考虑
     if (buildInLifecycleMethod.has(key)) return;
     if (key === 'state') {
@@ -232,6 +245,47 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
       buildIn: buildInProperty.has(key) ? 2 : 0,
     });
   });
+
+  const buildInStaticMember = new Set([
+    'length',
+    'name',
+    'prototype',
+    'observedAttributes',
+    'booleanAttributes',
+    'numberAttributes',
+    'observedPropertys',
+    'observedStores',
+    'adoptedStyleSheets',
+    'defineEvents',
+    'defineCSSStates',
+    'defineRefs',
+    'defineParts',
+    'defineSlots',
+  ]);
+  const getStaticMember = (cls: any, set = new Set<string>()) => {
+    Object.getOwnPropertyNames(cls).forEach((key) => {
+      if (!buildInStaticMember.has(key)) set.add(key);
+    });
+    const proto = Object.getPrototypeOf(cls);
+    if (proto !== HTMLElement) getStaticMember(proto, set);
+    return set;
+  };
+  const staticMember = getStaticMember(tagClass);
+  staticMember.forEach((key) => {
+    const value = $0.constructor[key];
+    data.staticMember.push({
+      name: key,
+      type: typeof value,
+      value: objectToString(value),
+      path: inspectable(value) ? ['constructor', key] : undefined,
+    });
+  });
+  data.staticMember.push({
+    name: 'constructor',
+    type: 'function',
+    value: objectToString(tagClass),
+    path: ['constructor'],
+  });
   return data;
 };
 
@@ -250,8 +304,14 @@ async function execution(func: (...rest: any) => any, args: any[]) {
   return data;
 }
 
+@customElement('devtools-gem-discover')
+class GemDiscover extends GemElement {}
+
 async function updateElementProperties() {
-  const data = await execution(getSelectedGem, [new PanelStore()]);
+  const data = await execution(getSelectedGem, [
+    new PanelStore(),
+    Object.getOwnPropertySymbols(new GemDiscover()).map(String),
+  ]);
   changeStore(data);
 }
 
@@ -300,7 +360,7 @@ addEventListener('valueclick', ({ detail }: CustomEvent<Path>) => {
       inspect(value);
     }
   };
-  execution(inspectValue, [detail, SheetToken.toString()]);
+  execution(inspectValue, [detail, String(SheetToken)]);
 });
 
 render(
