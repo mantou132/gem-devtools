@@ -156,7 +156,7 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
     if (!$0.constructor[prop]) {
       menber.delete(prop);
     }
-    const selector = `[part=${part}]`;
+    const selector = `[part=${part}],[exportparts*=${part}]`;
     data.parts.push({
       name: part,
       value: objectToString(($0.shadowRoot || $0).querySelector(selector)),
