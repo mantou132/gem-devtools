@@ -145,11 +145,16 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
       menber.delete(prop);
     }
     const selector = `[slot=${slot}]`;
+    let element = $0.querySelector(selector);
+    if (element instanceof HTMLSlotElement) {
+      // 只支持 inspect 第一个分配的元素
+      element = element.assignedElements()[0] || element;
+    }
     data.slots.push({
       name: slot,
-      value: objectToString($0.querySelector(selector)),
+      value: objectToString(element),
       type: 'element',
-      path: ['querySelector', selector],
+      path: element ? ['querySelector', selector] : undefined,
     });
   });
   tagClass.defineParts?.forEach((part) => {
@@ -255,7 +260,7 @@ updateElementProperties();
 setInterval(updateElementProperties, 300);
 
 addEventListener('valueclick', ({ detail }: CustomEvent<Path>) => {
-  const inspectObject = (path: Path, token: string) => {
+  const inspectValue = (path: Path, token: string) => {
     // [["shadowRoot", ""], "querySelector", "[ref=child-ref]"]
     // 只有 constructor 函数会当成对象读取
     const value = path.reduce((p, c, index) => {
@@ -274,22 +279,28 @@ addEventListener('valueclick', ({ detail }: CustomEvent<Path>) => {
         }
       }
     }, $0);
-    switch (typeof value) {
-      case 'object':
-        const symbol = Object.getOwnPropertySymbols(value)[0];
-        if (symbol && symbol.toString() === token) {
-          console.log(value[symbol]);
-        } else {
-          console.log(value);
-        }
-        break;
-      default:
-        console.dir(value);
-        inspect(value);
-        break;
+    if (value instanceof Element) {
+      let element = value;
+      if (element instanceof HTMLSlotElement) {
+        // 只支持 inspect 第一个分配的元素
+        element = element.assignedElements()[0] || value;
+      }
+      inspect(element);
+    } else if (typeof value === 'object') {
+      // chrome inspect(object) bug?
+      const symbol = Object.getOwnPropertySymbols(value)[0];
+      if (symbol && symbol.toString() === token) {
+        // stylesheet
+        console.log(value[symbol]);
+      } else {
+        console.log(value);
+      }
+    } else {
+      console.dir(value);
+      inspect(value);
     }
   };
-  execution(inspectObject, [detail, SheetToken.toString()]);
+  execution(inspectValue, [detail, SheetToken.toString()]);
 });
 
 render(
