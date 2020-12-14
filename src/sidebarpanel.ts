@@ -19,7 +19,7 @@ const getSelectedGem = function (data: PanelStore): PanelStore | null {
     if (func.toString() === 'function () { [native code] }') {
       return `function ${func.name} {...}`;
     } else {
-      return func.toString().replace(/{.*}/, '{...}');
+      return func.toString().replace(/{.*}/s, '{...}');
     }
   };
 
