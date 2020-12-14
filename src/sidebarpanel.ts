@@ -3,6 +3,7 @@ import { GemElement, html, render, SheetToken } from '@mantou/gem';
 
 import './elements/panel';
 import { changeStore, PanelStore, Path } from './store';
+import { theme } from './theme';
 
 declare let $0: any;
 declare function inspect(arg: any): void;
@@ -296,6 +297,9 @@ render(
     <style>
       body {
         margin: 0;
+        font-family: sans-serif;
+        background: rgba(${theme.backgroundColorRGB}, 1);
+        color: rgba(${theme.textColorRGB}, 1);
       }
     </style>
     <devtools-panel></devtools-panel>

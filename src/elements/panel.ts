@@ -16,9 +16,9 @@ export class Panel extends GemElement {
           :host {
             display: block;
             text-align: center;
-            color: #999;
             font-style: italic;
-            padding: 2em;
+            padding: 0.5em;
+            opacity: 0.5;
           }
         </style>
         Not is GemElement
@@ -27,6 +27,8 @@ export class Panel extends GemElement {
     return html`
       <style>
         :host {
+          display: block;
+          margin-bottom: 4em;
           font-size: 12px;
         }
       </style>

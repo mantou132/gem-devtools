@@ -1,6 +1,7 @@
 import { attribute, customElement, Emitter, emitter, GemElement, html, property } from '@mantou/gem';
 
 import { Item, Path, BuildIn } from '../store';
+import { theme } from '../theme';
 
 const maybeBuildInPrefix = '[[Gem?]] ';
 const buildInPrefix = '[[Gem]] ';
@@ -74,8 +75,6 @@ export class Section extends GemElement {
           display: block;
           line-height: 1.5;
           cursor: default;
-          font-family: sans-serif;
-          background: #fff;
         }
         .inspect {
           cursor: pointer;
@@ -88,10 +87,13 @@ export class Section extends GemElement {
         }
         summary {
           display: flex;
-          background: #eee;
-          border-bottom: 1px solid #fff;
+          background: rgba(${theme.textColorRGB}, 0.075);
+          border-bottom: 1px solid rgba(${theme.backgroundColorRGB}, 1);
           padding-right: 1em;
           user-select: none;
+        }
+        summary:focus {
+          outline: none;
         }
         .summary {
           flex-grow: 1;
@@ -99,13 +101,14 @@ export class Section extends GemElement {
           align-items: center;
         }
         .tip {
+          cursor: help;
           opacity: 0.3;
           margin-left: 1em;
           box-sizing: border-box;
           padding: 0.2em;
           background-clip: content-box;
           background: currentColor;
-          -webkit-text-fill-color: #fff;
+          -webkit-text-fill-color: rgba(${theme.backgroundColorRGB}, 1);
           border-radius: 10em;
           display: flex;
           align-items: center;
@@ -116,7 +119,7 @@ export class Section extends GemElement {
           font-weight: bolder;
         }
         summary:hover {
-          background: #ddd;
+          background: rgba(${theme.textColorRGB}, 0.15);
         }
         summary::marker {
           content: '';
@@ -134,7 +137,7 @@ export class Section extends GemElement {
           content: '▾';
         }
         .nodata {
-          color: gray;
+          color: ${theme.valueColor};
           padding: 0 1em;
           font-style: italic;
         }
@@ -150,7 +153,7 @@ export class Section extends GemElement {
         }
         .name {
           white-space: nowrap;
-          color: #75bfff;
+          color: ${theme.nameColor};
         }
         .sp {
           padding: 0 0.2em;
@@ -158,33 +161,33 @@ export class Section extends GemElement {
         .value {
           flex-shrink: 1;
           flex-grow: 1;
-          color: #999;
+          color: ${theme.valueColor};
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
         }
         .string {
-          color: #ff7de9;
+          color: ${theme.stringValueColor};
         }
         .string:empty::after {
           content: '<empty string>';
-          color: #999;
+          color: ${theme.valueColor};
           font-style: italic;
         }
         .number {
-          color: #86de74;
+          color: ${theme.numberValueColor};
         }
         .boolean {
-          color: #86de74;
+          color: ${theme.booleanValueColor};
         }
         .object {
-          color: #75bfff;
+          color: ${theme.objectValueColor};
         }
         .function {
-          color: #75bfff;
+          color: ${theme.functionValueColor};
         }
         .element {
-          color: #ba77b4;
+          color: ${theme.elementValueColor};
         }
       </style>
       <details open>
